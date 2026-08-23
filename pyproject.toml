@@ -10,3 +10,6 @@ requires-python = ">3.11"
 
 [project.scripts]
 archpilot = "archpilot.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
