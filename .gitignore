@@ -38,3 +38,5 @@ dist/
 # Temporary files
 *.tmp
 *.swp
+
+archpilot-plan.json
