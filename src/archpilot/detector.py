@@ -46,3 +46,45 @@ def detect_cpu() -> CPUInfo:
         cores=cores,
         threads=threads,
     )
+
+
+
+    def detect_gpus() -> list[GPUInfo]:
+        output = run_command(["lspci"])
+
+        gpus: list[GPUInfo] = []
+
+        for line in output.splitlines():
+            lower = line.lower()
+
+            if not any(
+                keyword in lower
+                for keyword in ("vga compatible controller", "3d controller", "display controller")
+            ):
+                continue
+
+            if "nvidia" in lower:
+                vendor = "NVIDIA"
+
+            elif "advanced micro devices" in lower or "amd/ati" in lower:
+                vendor = "AMD"
+
+            elif "intel corporation" in lower:
+                vendor = "Intel"
+
+            else:
+                vendor = "Unknown"
+
+            if ": " in line:
+                model = line.split(": ", 1)[1]
+            else:
+                model = line
+
+            gpus.append(
+                GPUInfo(
+                    vendor=vendor,
+                    model=model,
+                )
+            )
+
+        return gpus
