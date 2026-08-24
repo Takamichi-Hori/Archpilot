@@ -157,3 +157,16 @@ def detect_virtualization() -> str | None:
         return None
 
     return output
+
+
+
+
+def analyze_system() -> SystemInfo:
+    return SystemInfo(
+        cpu=detect_cpu(),
+        gpus=detect_gpus(),
+        memory=detect_memory(),
+        disks=detect_disks(),
+        uefi=detect_uefi(),
+        virtualization=detect_virtualization(),
+    )
