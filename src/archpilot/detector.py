@@ -1,4 +1,5 @@
 import os
+import json
 
 from archpilot.commands import run_command
 from archpilot.models import (
@@ -109,3 +110,33 @@ def detect_memory() -> MemoryInfo:
 
     except (OSError, ValueError, IndexError):
         return MemoryInfo(total_gb=0.0)
+
+
+
+def detect_disks() -> list[DiskInfo]:
+    output = run_command( ["lsblk", "-J", "-o", "NAME, SIZE, TYPE"])
+
+    if not output:
+        return []
+
+    try:
+        data = json.loads(output)
+
+    except json.JSONDecodeError:
+        return []
+
+    disks: list[DiskInfo] = []
+
+    for device in data.get("blockdevices", []):
+        if device.get("type") != "disk":
+            continue
+
+        disks.append(
+            DiskInfo(
+                name=device.get("name", "unknown"),
+                size=device.get("size", "unknown"),
+                disk_type=device.get("type", "disk"),
+            )
+        )
+
+    return disks
