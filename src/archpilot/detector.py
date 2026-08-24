@@ -146,3 +146,14 @@ def detect_disks() -> list[DiskInfo]:
 
 def detect_uefi() -> bool:
     return os.path.exists("/sys/firmware/efi")
+
+
+
+
+def detect_virtualization() -> str | None:
+    output = run_command(["systemd-detect-virt"])
+
+    if not output or output == "none":
+        return None
+
+    return output
