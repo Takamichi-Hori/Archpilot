@@ -140,3 +140,9 @@ def detect_disks() -> list[DiskInfo]:
         )
 
     return disks
+
+
+
+
+def detect_uefi() -> bool:
+    return os.path.exists("/sys/firmware/efi")
