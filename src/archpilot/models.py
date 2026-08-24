@@ -38,9 +38,9 @@ class SystemInfo:
 
 @dataclass
 class Recommendation:
-    user_case: str
+    use_case: str
     desktop_environment: str
-    package: list[str] = field(default_factory=list)
+    packages: list[str] = field(default_factory=list)
     services: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
 

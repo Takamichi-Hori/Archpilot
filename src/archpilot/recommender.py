@@ -49,11 +49,11 @@ def gpu_packages(system: SystemInfo) -> tuple[list[str], list[str]]:
 
     return packages, warnings
 
-def recommend(system: SystemInfo, user_case: str,) -> Recommendation:
+def recommend(system: SystemInfo, use_case: str,) -> Recommendation:
 
     packages = BASE_PACKAGES.copy()
 
-    packages.extend(KDE_packages)
+    packages.extend(KDE_PACKAGES)
 
     services = ["NetworkManager", "bluetooth",]
 
@@ -74,13 +74,13 @@ def recommend(system: SystemInfo, user_case: str,) -> Recommendation:
 
         services.append("docker")
 
-    elif user_case == "everyday":
+    elif use_case == "everyday":
         packages.extend(
             ["firefox", "vlc", "libreoffice-fresh",]
         )
 
     else:
-        raise ValueError(f"Unknown user case: {user_case}")
+        raise ValueError(f"Unknown use case: {use_case}")
 
     packages = sorted(set(packages))
     services = sorted(set(services))
@@ -88,7 +88,7 @@ def recommend(system: SystemInfo, user_case: str,) -> Recommendation:
     return Recommendation(
         use_case=use_case,
         desktop_environment="KDE Plasma",
-        package=packages,
+        packages=packages,
         services=services,
         warnings=warnings,
     )

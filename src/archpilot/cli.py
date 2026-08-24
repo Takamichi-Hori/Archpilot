@@ -23,7 +23,7 @@ def build_parser() -> argparse.ArgumentParser:
     recommend_parser = subparsers.add_parser("recommend")
 
     recommend_parser.add_argument(
-        "--user-case",
+        "--use-case",
         choices=["gaming", "developer", "everyday",],
         required=True,
     )
