@@ -1,4 +1,5 @@
 import argparse
+from archpilot.detector import analyze_system
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -22,7 +23,9 @@ def main() -> None:
         print("Everything looks good.")
 
     elif args.command == "analyze":
-        print("Hardware analysis is not implemented yet.")
+        system = analyze_system()
+        
+        print(system)
 
 if __name__ == "__main__":
     main()
