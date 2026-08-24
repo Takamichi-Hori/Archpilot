@@ -89,3 +89,23 @@ def detect_gpus() -> list[GPUInfo]:
         )
 
     return gpus
+
+
+
+def detect_memory() -> MemoryInfo:
+    try:
+        with open("/proc/meminfo", encoding="utf-8") as file:
+            first_line = file.readline()
+
+        parts = first_line.split()
+
+        memory_kb = int(parts[1])
+
+        memory_gb = memory_kb / 1024 / 1024
+
+        return MemoryInfo(
+            total_gb=round(memory_gb, 1)
+        )
+
+    except (OSError, ValueError, IndexError):
+        return MemoryInfo(total_gb=0.0)
