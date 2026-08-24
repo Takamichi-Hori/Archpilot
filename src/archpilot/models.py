@@ -35,3 +35,14 @@ class SystemInfo:
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
+
+@dataclass
+class Recommendation:
+    user_case: str
+    desktop_environment: str
+    package: list[str] = field(default_factory=list)
+    services: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
