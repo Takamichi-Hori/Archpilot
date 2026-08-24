@@ -1,5 +1,6 @@
 import argparse
 from archpilot.detector import analyze_system
+from archpilot.render import render_system
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -25,7 +26,7 @@ def main() -> None:
     elif args.command == "analyze":
         system = analyze_system()
         
-        print(system)
+        print(render_system(system))
 
 if __name__ == "__main__":
     main()
