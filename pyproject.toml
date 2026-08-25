@@ -18,5 +18,5 @@ where = ["src"]
 pythonpath = ["src"]
 
 [tool.ruff]
-line-length -88
+line-length = 88
 target-version = "py311"
