@@ -32,7 +32,7 @@ def test_amd_gaming_profile():
         "gaming",
     )
 
-    assert "staem" in result.packages
+    assert "steam" in result.packages
     assert "vulkan-radeon" in result.packages
     assert result.desktop_environment == "KDE Plasma"
 
