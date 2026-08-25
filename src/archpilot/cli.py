@@ -103,25 +103,25 @@ def main() -> None:
                 for warning in recommendation.warnings:
                     print(f"  - {warning}")
 
-        elif args.command == "plan":
-            system = analyze_system()
+    elif args.command == "plan":
+        system = analyze_system()
 
-            recommendation = recommend(
-                system, args.use_case,
-            )
+        recommendation = recommend(
+            system, args.use_case,
+        )
 
-            plan = create_install_plan(recommendation,)
+        plan = create_install_plan(recommendation,)
 
-            plan_json = json.dumps(plan.to_dict(), indent=2,)
+        plan_json = json.dumps(plan.to_dict(), indent=2,)
 
-            if args.output:
-                with open(args.output, "w", encoding="utf-8",) as file:
-                    file.write(plan_json)
+        if args.output:
+            with open(args.output, "w", encoding="utf-8",) as file:
+                file.write(plan_json)
 
-                print(f"Plan written to {args.output}")
+            print(f"Plan written to {args.output}")
 
-            else:
-                print(plan_json)
+        else:
+            print(plan_json)
 
 
 
