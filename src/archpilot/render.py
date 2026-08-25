@@ -1,5 +1,6 @@
 from archpilot.models import SystemInfo
 
+
 def render_system(system: SystemInfo) -> str:
     lines: list[str] = []
 

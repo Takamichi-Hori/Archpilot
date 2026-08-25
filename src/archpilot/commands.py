@@ -1,6 +1,7 @@
 import shutil
 import subprocess
 
+
 def command_exists(command: str) -> bool:
     return shutil.which(command) is not None
 

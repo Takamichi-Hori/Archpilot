@@ -1,10 +1,12 @@
 import argparse
-from archpilot.detector import analyze_system
-from archpilot.render import render_system
 import json
-from archpilot.recommender import recommend
-from archpilot.planner import create_install_plan
+
 from archpilot.commands import command_exists
+from archpilot.detector import analyze_system
+from archpilot.planner import create_install_plan
+from archpilot.recommender import recommend
+from archpilot.render import render_system
+
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(

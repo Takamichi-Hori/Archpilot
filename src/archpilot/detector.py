@@ -1,5 +1,5 @@
-import os
 import json
+import os
 
 from archpilot.commands import run_command
 from archpilot.models import (
@@ -9,6 +9,7 @@ from archpilot.models import (
     MemoryInfo,
     SystemInfo,
 )
+
 
 def detect_cpu() -> CPUInfo:
     output = run_command(["lscpu"])

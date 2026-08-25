@@ -1,6 +1,7 @@
 from archpilot.models import Recommendation
 from archpilot.planner import create_install_plan
 
+
 def test_destrucvtive_operations_are_disabled():
     recommendation = Recommendation(
         use_case="gaming",

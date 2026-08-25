@@ -1,5 +1,6 @@
 from archpilot.detector import classify_gpu_vendor
 
+
 def test_nvidia_detection():
     line = (
         "01:00.0 VGA compatible controller: "

@@ -1,5 +1,11 @@
-from archpilot.models import (CPUInfo, GPUInfo, MemoryInfo, SystemInfo,)
+from archpilot.models import (
+    CPUInfo,
+    GPUInfo,
+    MemoryInfo,
+    SystemInfo,
+)
 from archpilot.recommender import recommend
+
 
 def make_system(vendor: str) -> SystemInfo:
 

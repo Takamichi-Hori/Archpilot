@@ -1,5 +1,6 @@
 from archpilot.models import InstallPlan, Recommendation
 
+
 def create_install_plan (recommendation: Recommendation,) -> InstallPlan:
 
     return InstallPlan(
