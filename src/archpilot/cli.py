@@ -4,6 +4,7 @@ from archpilot.render import render_system
 import json
 from archpilot.recommender import recommend
 from archpilot.planner import create_install_plan
+from archpilot.commands import command_exists
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -57,13 +58,41 @@ def build_parser() -> argparse.ArgumentParser:
 
     return parser
 
+def run_doctor() -> None:
+    required_commands = ["lscpu", "lspci", "lsblk", "systemd-detect-virt",]
+
+    print("ArchPilot doctor\n")
+
+    healthy = True
+
+    for command in required_commands:
+        available = command_exists(command)
+
+        status = "OK" if available else "MISSING"
+
+        print(f"{command:20} {status}")
+
+        if not available:
+            healthy = False
+
+    print()
+
+    if healthy:
+        print("Everything looks good.")
+
+    else:
+        print("Some required commands are missing.")
+
+    
+
+
+
 def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
 
     if args.command == "doctor":
-        print("ArchPilot doctor")
-        print("Everything looks good.")
+        run_doctor()
 
     elif args.command == "analyze":
         system = analyze_system()
