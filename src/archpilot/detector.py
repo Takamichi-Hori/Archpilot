@@ -49,6 +49,17 @@ def detect_cpu() -> CPUInfo:
     )
 
 
+def classify_gpu_vendor(line: str) -> str:
+    lower = line.lower()
+
+    if "nvidia" in lower:
+        return "NVIDIA"
+
+    if ("advanced micro devices" in lower or "amd/ati" in lower):
+        return "AMD"
+
+    if "intel corporation" in lower:
+        return "Intel"
 
 def detect_gpus() -> list[GPUInfo]:
     output = run_command(["lspci"])
@@ -64,18 +75,20 @@ def detect_gpus() -> list[GPUInfo]:
         ):
             continue
 
-        if "nvidia" in lower:
+        #if "nvidia" in lower:
             vendor = "NVIDIA"
 
-        elif "advanced micro devices" in lower or "amd/ati" in lower:
+        #elif "advanced micro devices" in lower or "amd/ati" in lower:
             vendor = "AMD"
 
-        elif "intel corporation" in lower:
+        #elif "intel corporation" in lower:
             vendor = "Intel"
 
-        else:
+        #else:
             vendor = "Unknown"
 
+        vendor = classify_gpu_vendor(line)
+    
         if ": " in line:
             model = line.split(": ", 1)[1]
         
