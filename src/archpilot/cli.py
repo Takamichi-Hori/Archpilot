@@ -3,6 +3,7 @@ from archpilot.detector import analyze_system
 from archpilot.render import render_system
 import json
 from archpilot.recommender import recommend
+from archpilot.planner import create_install_plan
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -13,6 +14,8 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     subparsers.add_parser("doctor")
+    
+    
     analyze_parser = subparsers.add_parser("analyze")
 
     analyze_parser.add_argument(
@@ -20,6 +23,7 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
     )
 
+    
     recommend_parser = subparsers.add_parser("recommend")
 
     recommend_parser.add_argument(
@@ -31,6 +35,24 @@ def build_parser() -> argparse.ArgumentParser:
     recommend_parser.add_argument(
         "--json",
         action="store_true",
+    )
+
+
+    plan_parser = subparsers.add_parser("plan")
+
+    plan_parser.add_argument(
+        "--use-case",
+        choices=["gaming", "developer", "everyday",],
+        required=True,
+    )
+
+    plan_parser.add_argument(
+        "--json",
+        action="store_true",
+    )
+
+    plan_parser.add_argument(
+        "--output",
     )
 
     return parser
@@ -80,6 +102,26 @@ def main() -> None:
 
                 for warning in recommendation.warnings:
                     print(f"  - {warning}")
+
+        elif args.command == "plan":
+            system = analyze_system()
+
+            recommendation = recommend(
+                system, args.use_case,
+            )
+
+            plan = create_install_plan(recommendation,)
+
+            plan_json = json.dumps(plan.to_dict(), indent=2,)
+
+            if args.output:
+                with open(args.output, "w", encoding="utf-8",) as file:
+                    file.write(plan_json)
+
+                print(f"Plan written to {args.output}")
+
+            else:
+                print(plan_json)
 
 
 
