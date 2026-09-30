@@ -19,29 +19,25 @@ def detect_cpu() -> CPUInfo:
     for line in output.splitlines():
         if ":" not in line:
             continue
-        
-        key, value = line.split(":", 1)
 
+        key, value = line.split(":", 1)
         values[key.strip()] = value.strip()
 
     model = values.get("Model name", "Unknown CPU")
     architecture = values.get("Architecture", "unknown")
 
     try:
-        core_per_socket = int(values.get("Core(s) per socket", "0"))
-        sockets =  int(values.get("Socket(s)", "1"))
-
-        cores = core_per_socket * sockets
-
+        cores_per_socket = int(values.get("Core(s) per socket", "0"))
+        sockets = int(values.get("Socket(s)", "1"))
+        cores = cores_per_socket * sockets
     except ValueError:
         cores = 0
-    
+
     try:
         threads = int(values.get("CPU(s)", "0"))
-
     except ValueError:
         threads = 0
-    
+
     return CPUInfo(
         model=model,
         architecture=architecture,
@@ -56,11 +52,14 @@ def classify_gpu_vendor(line: str) -> str:
     if "nvidia" in lower:
         return "NVIDIA"
 
-    if ("advanced micro devices" in lower or "amd/ati" in lower):
+    if "advanced micro devices" in lower or "amd/ati" in lower:
         return "AMD"
 
     if "intel corporation" in lower:
         return "Intel"
+
+    return "Unknown"
+
 
 def detect_gpus() -> list[GPUInfo]:
     output = run_command(["lspci"])
@@ -72,27 +71,18 @@ def detect_gpus() -> list[GPUInfo]:
 
         if not any(
             keyword in lower
-            for keyword in ("vga compatible controller", "3d controller", "display controller")
+            for keyword in (
+                "vga compatible controller",
+                "3d controller",
+                "display controller",
+            )
         ):
             continue
 
-        #if "nvidia" in lower:
-            vendor = "NVIDIA"
-
-        #elif "advanced micro devices" in lower or "amd/ati" in lower:
-            vendor = "AMD"
-
-        #elif "intel corporation" in lower:
-            vendor = "Intel"
-
-        #else:
-            vendor = "Unknown"
-
         vendor = classify_gpu_vendor(line)
-    
+
         if ": " in line:
             model = line.split(": ", 1)[1]
-        
         else:
             model = line
 
@@ -106,16 +96,13 @@ def detect_gpus() -> list[GPUInfo]:
     return gpus
 
 
-
 def detect_memory() -> MemoryInfo:
     try:
         with open("/proc/meminfo", encoding="utf-8") as file:
             first_line = file.readline()
 
         parts = first_line.split()
-
         memory_kb = int(parts[1])
-
         memory_gb = memory_kb / 1024 / 1024
 
         return MemoryInfo(
@@ -126,16 +113,16 @@ def detect_memory() -> MemoryInfo:
         return MemoryInfo(total_gb=0.0)
 
 
-
 def detect_disks() -> list[DiskInfo]:
-    output = run_command( ["lsblk", "-J", "-o", "NAME, SIZE, TYPE"])
+    output = run_command(
+        ["lsblk", "-J", "-o", "NAME,SIZE,TYPE"]
+    )
 
     if not output:
         return []
 
     try:
         data = json.loads(output)
-
     except json.JSONDecodeError:
         return []
 
@@ -156,12 +143,8 @@ def detect_disks() -> list[DiskInfo]:
     return disks
 
 
-
-
 def detect_uefi() -> bool:
     return os.path.exists("/sys/firmware/efi")
-
-
 
 
 def detect_virtualization() -> str | None:
@@ -171,8 +154,6 @@ def detect_virtualization() -> str | None:
         return None
 
     return output
-
-
 
 
 def analyze_system() -> SystemInfo:
