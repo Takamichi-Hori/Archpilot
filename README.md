@@ -310,11 +310,3 @@ External Linux commands are accessed through a dedicated layer so the core appli
 - terminal or graphical user interface
 
 ---
-
-## Disclaimer
-
-ArchPilot is a personal software engineering project and is currently experimental.
-
-The current version does not perform disk partitioning, filesystem formatting, bootloader installation, or operating-system installation.
-
-ArchPilot is not affiliated with or endorsed by Arch Linux.
