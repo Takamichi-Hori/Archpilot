@@ -1,77 +1,53 @@
 # ArchPilot
 
-**ArchPilot is a hardware-aware Arch Linux environment planner designed to make Arch Linux more approachable for everyday users, gamers, and developers.**
+**A hardware-aware Arch Linux environment planner built with Python.**
 
-Instead of requiring users to manually research hardware drivers, packages, desktop environments, and system configuration, ArchPilot aims to analyze the computer and the user's intended use case, then generate a suitable Arch Linux configuration automatically.
+ArchPilot analyzes a Linux machine's hardware and a selected use case, then generates package recommendations and a safe Arch Linux installation plan.
 
-> **Current status: v0.1 — early development**
+> **Status: v0.1**
 >
-> ArchPilot currently analyzes hardware and generates a safe installation plan.
-> It **does not modify disks or install Arch Linux yet**.
+> ArchPilot currently performs system analysis, recommendations, and planning. It intentionally does not modify disks or install an operating system.
 
 ---
 
-## Why ArchPilot?
+## What It Does
 
-Arch Linux gives users a high degree of control, but getting from a blank installation to a fully configured desktop often requires knowledge of:
+Arch Linux installations often require users to manually determine GPU drivers, system packages, desktop environments, and hardware-specific configuration.
 
-* GPU drivers
-* Filesystems
-* Desktop environments
-* Audio systems
-* Networking
-* Gaming packages
-* Development tools
-* Hardware-specific configuration
-
-For experienced Linux users, that flexibility is a strength.
-
-For someone who simply wants a fast gaming PC, development environment, or everyday Linux desktop, it can be a significant barrier.
-
-ArchPilot explores a different workflow:
+ArchPilot turns this into a simple pipeline:
 
 ```text
-Hardware
-   +
-User's intended use
+Hardware + Use Case
         │
         ▼
-System Analysis
+   System Detection
         │
         ▼
-Recommendation Engine
+   Recommendation
         │
         ▼
-Arch Configuration
-        │
-        ▼
-Installation Plan
+ Installation Plan
 ```
 
-The long-term goal is to turn this into a safe migration and installation tool capable of taking a user from an existing operating system to a ready-to-use Arch Linux environment.
+The goal of the project is to separate hardware detection, configuration decisions, and potentially destructive system operations into clearly defined layers.
 
 ---
 
-## Current Features
+## Features
 
 ### Hardware Detection
 
-ArchPilot v0.1 can detect:
+ArchPilot detects:
 
-* CPU model
-* CPU architecture
-* Core and thread count
-* GPU vendor
+- CPU model and architecture
+- CPU cores and threads
+- AMD, Intel, and NVIDIA GPUs
+- installed memory
+- physical disks
+- UEFI availability
+- virtualization environment
 
-  * AMD
-  * Intel
-  * NVIDIA
-* Installed memory
-* Physical disks
-* UEFI availability
-* Virtualization environment
-
-Hardware information is collected using Linux system interfaces and utilities including:
+It uses standard Linux interfaces and utilities including:
 
 ```text
 lscpu
@@ -82,121 +58,61 @@ lsblk
 systemd-detect-virt
 ```
 
----
+### Hardware-Aware Recommendations
 
-## Hardware-Aware Recommendations
+Recommendations depend on the detected hardware.
 
-ArchPilot separates hardware detection from configuration decisions.
-
-For example:
+For example, an AMD GPU may produce:
 
 ```text
-AMD GPU
-   │
-   ▼
 mesa
 vulkan-radeon
 lib32-mesa
 lib32-vulkan-radeon
 ```
 
-while NVIDIA hardware produces a different package set.
+while Intel and NVIDIA hardware receive different package recommendations.
 
-When ArchPilot cannot make a decision safely, it reports the unresolved decision instead of guessing.
+If ArchPilot cannot safely determine a configuration, it produces a warning instead of guessing.
 
-This is currently used for some NVIDIA driver decisions where the correct kernel module may depend on the GPU generation and selected kernel.
+### Usage Profiles
 
----
+Three profiles are currently supported:
 
-## Usage Profiles
-
-ArchPilot v0.1 provides three initial profiles.
-
-### Gaming
-
-Designed for users building a Linux gaming environment.
-
-Recommendations may include:
+**Gaming**
 
 ```text
 Steam
 GameMode
 gamescope
 MangoHud
-Mesa / Vulkan packages
-GPU-specific packages
-PipeWire
+GPU-specific Vulkan packages
 ```
 
-### Development
-
-Designed for software development environments.
-
-Recommendations may include:
+**Developer**
 
 ```text
 Git
 Docker
 Python
 Node.js
+npm
 Go
-KDE Plasma
 ```
 
-### Everyday
-
-Designed for general desktop use.
-
-Recommendations may include:
+**Everyday**
 
 ```text
 Firefox
 VLC
 LibreOffice
-KDE Plasma
 ```
-
-More profiles are planned, and the profile system is intended to eventually support community contributions.
-
----
-
-## Safety First
-
-ArchPilot is intended to eventually perform operations that can modify disks and operating systems.
-
-Because those operations can destroy user data if implemented incorrectly, v0.1 deliberately stops before execution.
-
-The following operations are currently blocked:
-
-```text
-Disk partitioning        BLOCKED
-Filesystem formatting    BLOCKED
-Partition deletion       BLOCKED
-Bootloader installation  BLOCKED
-Real OS installation     BLOCKED
-```
-
-The current pipeline is:
-
-```text
-Detect
-  ↓
-Analyze
-  ↓
-Recommend
-  ↓
-Plan
-  ↓
-STOP
-```
-
-Future execution functionality will first be developed and tested against virtual disks using QEMU before support for physical disks is considered.
 
 ---
 
 ## Architecture
 
-ArchPilot currently separates system interaction, hardware detection, recommendation logic, and planning.
+The project separates system interaction from decision-making.
 
 ```text
                     CLI
@@ -209,13 +125,11 @@ ArchPilot currently separates system interaction, hardware detection, recommenda
     Detector ──► Recommender ──► Planner
         │
         ▼
-    Commands
+     Commands
         │
         ▼
 Linux system interfaces
 ```
-
-### Project Structure
 
 ```text
 src/archpilot/
@@ -231,84 +145,82 @@ src/archpilot/
 
 ### Detector
 
-Collects facts about the system.
-
-```text
-Hardware → facts
-```
-
-Examples:
-
-```text
-GPU: AMD Radeon
-RAM: 32 GB
-Firmware: UEFI
-```
+Collects facts about the current machine without making configuration decisions.
 
 ### Recommender
 
-Turns detected facts and user intent into configuration decisions.
-
-```text
-Facts + use case → recommendation
-```
+Combines hardware information with the selected use case to determine packages, services, and warnings.
 
 ### Planner
 
-Converts a recommendation into an installation plan.
+Converts recommendations into an inspectable plan.
 
-In v0.1, the planner explicitly prevents destructive operations.
+The current version explicitly disables destructive operations.
 
 ### Commands
 
-Provides a small abstraction around external Linux utilities instead of spreading direct subprocess calls throughout the codebase.
+Linux commands are accessed through a small abstraction instead of direct subprocess calls throughout the application.
 
-This makes system-dependent code easier to test and replace.
+This keeps system interaction isolated and makes the application easier to test.
+
+---
+
+## Safety
+
+Operating-system installation tools can destroy data if something goes wrong.
+
+For that reason, ArchPilot v0.1 deliberately stops before execution:
+
+```text
+Detect
+  ↓
+Analyze
+  ↓
+Recommend
+  ↓
+Plan
+  ↓
+STOP
+```
+
+Operations such as disk formatting, partition deletion, and bootloader installation are not performed.
+
+Future installation functionality would first be tested using virtual machines and virtual disks.
 
 ---
 
 ## Installation
 
-### Requirements
+Requirements:
 
-* Linux
-* Python 3.11+
-* `lscpu`
-* `lspci`
-* `lsblk`
-* `systemd-detect-virt`
-
-Clone the repository:
+- Linux
+- Python 3.11+
+- `lscpu`
+- `lspci`
+- `lsblk`
+- `systemd-detect-virt`
 
 ```bash
-git clone <your-repository>
-cd archpilot
-```
+git clone https://github.com/Takamichi-Hori/Archpilot.git
+cd Archpilot
 
-Create a virtual environment:
-
-```bash
 python3 -m venv .venv
 source .venv/bin/activate
+
+pip install -e .
 ```
 
-Install ArchPilot in editable mode:
+Check dependencies:
 
 ```bash
-pip install -e .
+archpilot doctor
 ```
 
 ---
 
 ## Usage
 
-### Check dependencies
-
-```bash
-archpilot doctor
-```
-
-### Analyze the current PC
+Analyze the current machine:
 
 ```bash
 archpilot analyze
@@ -320,31 +232,21 @@ JSON output:
 archpilot analyze --json
 ```
 
-### Generate a gaming recommendation
+Generate recommendations:
 
 ```bash
 archpilot recommend --use-case gaming
-```
-
-### Generate a development recommendation
-
-```bash
 archpilot recommend --use-case developer
-```
-
-### Generate an everyday-use recommendation
-
-```bash
 archpilot recommend --use-case everyday
 ```
 
-### Generate an installation plan
+Generate an installation plan:
 
 ```bash
 archpilot plan --use-case gaming
 ```
 
-Save the plan:
+Save it as JSON:
 
 ```bash
 archpilot plan \
@@ -356,157 +258,63 @@ archpilot plan \
 
 ## Testing
 
-Install development tools:
+ArchPilot uses `pytest` for unit testing and `ruff` for static analysis.
 
 ```bash
 pip install pytest ruff
-```
 
-Run the test suite:
-
-```bash
-pytest
-```
-
-Run static analysis:
-
-```bash
-ruff check src tests
-```
-
-Current tests cover areas including:
-
-* NVIDIA GPU vendor detection
-* AMD GPU vendor detection
-* Intel GPU vendor detection
-* Hardware-aware gaming recommendations
-* Prevention of destructive disk operations
-
----
-
-## Roadmap
-
-### v0.1 — Hardware-Aware Planner
-
-* [x] CPU detection
-* [x] GPU detection
-* [x] Memory detection
-* [x] Disk detection
-* [x] UEFI detection
-* [x] Virtualization detection
-* [x] Gaming profile
-* [x] Development profile
-* [x] Everyday profile
-* [x] Hardware-aware package recommendations
-* [x] Safe installation plan
-* [x] Unit tests
-
-### v0.2 — Virtual Installation
-
-* [ ] QEMU-based test environment
-* [ ] Virtual disk inspection
-* [ ] Partition planning
-* [ ] Network preflight checks
-* [ ] `archinstall` integration
-* [ ] Installation logging
-* [ ] Automated boot verification
-* [ ] Improved NVIDIA driver resolution
-
-### v0.3 — Migration Analysis
-
-* [ ] Windows system analysis
-* [ ] Installed application detection
-* [ ] Linux application equivalents
-* [ ] User-data inventory
-* [ ] BitLocker detection
-* [ ] Windows Fast Startup detection
-* [ ] Migration manifests
-
-### Future
-
-* [ ] Backup verification
-* [ ] Restore engine
-* [ ] Dual-boot support
-* [ ] Bootable ArchPilot ISO
-* [ ] Graphical interface
-* [ ] Community profiles
-* [ ] Hardware-specific community configurations
-
----
-
-## Contributing
-
-ArchPilot is being developed as an open-source project, and contributions are welcome.
-
-Useful contributions include:
-
-* Hardware detection improvements
-* Support for additional GPUs and devices
-* New usage profiles
-* Package recommendations
-* Tests
-* Documentation
-* Linux compatibility fixes
-* QEMU test infrastructure
-* UI/UX ideas
-
-If you are new to open source, documentation, tests, and additional hardware-detection cases are good places to start.
-
-Before submitting a pull request:
-
-```bash
 ruff check src tests
 pytest
 ```
 
-Both should pass.
+GitHub Actions automatically runs both checks on pushes and pull requests.
 
-A dedicated `CONTRIBUTING.md` with contribution guidelines will be maintained as the project grows.
-
----
-
-## Design Principles
-
-ArchPilot follows several principles:
-
-### Safety over automation
-
-If ArchPilot cannot determine an operation safely, it should stop instead of guessing.
-
-### Plan before execution
-
-Potentially destructive operations should have an inspectable plan before they are executed.
-
-### Hardware-aware, not one-size-fits-all
-
-Recommendations should be based on the actual machine whenever possible.
-
-### Test destructive workflows virtually first
-
-Disk and installation functionality should be validated against virtual machines and virtual disks before physical hardware.
-
-### Keep the core independent from the interface
-
-Hardware detection and recommendation logic should not depend on whether ArchPilot eventually uses a CLI, TUI, or GUI.
+Tests cover hardware classification, hardware-aware recommendations, usage profiles, and safety constraints.
 
 ---
 
-## License
+## Design Decisions
 
-ArchPilot is licensed under the **GNU General Public License v3.0 only (GPL-3.0-only)**.
+**Separate facts from decisions**
 
-You may use, study, modify, and redistribute ArchPilot under the terms of the GPLv3.
+```text
+Detection → Facts
+Recommendation → Decisions
+Planning → Actions
+```
 
-See the `LICENSE` file for the complete license text.
+Hardware detection does not decide which configuration should be installed.
+
+**Fail safely**
+
+When the available information is insufficient for a reliable decision, ArchPilot reports the unresolved configuration instead of guessing.
+
+**Plan before execution**
+
+Potentially destructive operations should have an inspectable plan before any system changes occur.
+
+**Keep system interaction isolated**
+
+External Linux commands are accessed through a dedicated layer so the core application logic remains easier to test and maintain.
+
+---
+
+## Future Improvements
+
+- QEMU-based integration testing
+- virtual disk and partition planning
+- improved NVIDIA driver resolution
+- network preflight checks
+- installation logging
+- automated boot verification
+- terminal or graphical user interface
 
 ---
 
 ## Disclaimer
 
-ArchPilot is experimental software under active development.
+ArchPilot is a personal software engineering project and is currently experimental.
 
-Future versions may perform operations involving partitions, filesystems, bootloaders, and operating-system installation. Such operations can result in permanent data loss if something goes wrong.
+The current version does not perform disk partitioning, filesystem formatting, bootloader installation, or operating-system installation.
 
-Always maintain verified backups of important data.
-
-**ArchPilot is an independent community project and is not affiliated with or endorsed by Arch Linux.**
+ArchPilot is not affiliated with or endorsed by Arch Linux.
