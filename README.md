@@ -165,7 +165,7 @@ This keeps system interaction isolated and makes the application easier to test.
 
 Operating-system installation tools can destroy data if something goes wrong.
 
-For that reason, ArchPilot v0.1 deliberately stops before execution:
+For that reason, so far, ArchPilot deliberately stops before execution:
 
 ```text
 Detect
