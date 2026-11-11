@@ -4,11 +4,7 @@
 
 ArchPilot analyzes a Linux machine's hardware and a selected use case, then generates package recommendations and a safe Arch Linux installation plan.
 
-> **Status: v0.1**
->
-> ArchPilot currently performs system analysis, recommendations, and planning. It intentionally does not modify disks or install an operating system.
 
----
 
 ## What It Does
 
